@@ -1,6 +1,6 @@
 ﻿using System.Net;
 
-namespace MinesweeperAPI.Exceptions
+namespace MinesweeperAPI.Models.Exceptions.ResponseExceptions
 {
     public class BadRequestException : CustomResponseException
     {

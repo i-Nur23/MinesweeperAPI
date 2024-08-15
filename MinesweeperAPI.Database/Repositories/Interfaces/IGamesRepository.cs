@@ -7,5 +7,9 @@ namespace MinesweeperAPI.Database.Repositories.Interfaces
         public Task<Game?> GetAsync(
             Guid gameId,
             CancellationToken cancellationToken);
+
+        public Task AddAsync(
+            Game game,
+            CancellationToken cancellationToken);
     }
 }

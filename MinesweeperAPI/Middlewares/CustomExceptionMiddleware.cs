@@ -1,4 +1,4 @@
-﻿using MinesweeperAPI.Exceptions;
+﻿using MinesweeperAPI.Models.Exceptions.ResponseExceptions;
 using Newtonsoft.Json;
 using System.Net;
 

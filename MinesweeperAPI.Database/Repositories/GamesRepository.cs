@@ -13,6 +13,11 @@ namespace MinesweeperAPI.Database.Repositories
             _dbContext = dbContext;
         }
 
+        public async Task AddAsync(Game game, CancellationToken cancellationToken)
+        {
+            await _dbContext.Games.AddAsync(game, cancellationToken);
+        }
+
         public async Task<Game?> GetAsync(
             Guid gameId,
             CancellationToken cancellationToken)

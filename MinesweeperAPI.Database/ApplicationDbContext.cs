@@ -5,7 +5,7 @@ namespace MinesweeperAPI.Database
 {
     internal class ApplicationDbContext : DbContext, IApplicationDbContext
     {
-        public DbSet<Game> Games {  get; set; }
+        public DbSet<Game> Games { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options) { }

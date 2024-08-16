@@ -5,7 +5,6 @@ using MinesweeperAPI.Services.Interfaces;
 
 namespace MinesweeperAPI.Controllers
 {
-    [Route("api")]
     [ApiController]
     public class GameController : ControllerBase
     {

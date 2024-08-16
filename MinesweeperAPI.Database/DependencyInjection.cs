@@ -22,6 +22,7 @@ namespace MinesweeperAPI.Database
             services.AddHostedService<DatabaseMigrationService>();
 
             services.AddScoped<IGamesRepository, GamesRepository>();
+            services.AddScoped<IDatabaseRepository, DatabaseRepository>();
 
             return services;
         }

@@ -1,4 +1,7 @@
-﻿namespace MinesweeperAPI.Models.Entities
+﻿using Newtonsoft.Json;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace MinesweeperAPI.Models.Entities
 {
     public class Game
     {
@@ -12,17 +15,21 @@
 
         public bool IsCompleted { get; set; }
 
+        public bool IsStarted { get; set; }
+
         public string FieldText { get; set; }
+
+        public int ClosedCellsCount { get; set; }
 
         public string CurrentFieldText { get; set; }
 
-        public IEnumerable<IEnumerable<string>> Field => FieldText
-            .Split(':')
-            .Select(row => row.Split(','));
+        [NotMapped]
+        public int[][] Field => 
+            JsonConvert.DeserializeObject<int[][]>(FieldText);
 
-        public IEnumerable<IEnumerable<string>> CurrentField => CurrentFieldText
-            .Split(':')
-            .Select(row => row.Split(','));
+        [NotMapped]
+        public string[][] CurrentField =>
+            JsonConvert.DeserializeObject<string[][]>(CurrentFieldText);
 
         public DateTime UpdatedAt { get; set; }
     }

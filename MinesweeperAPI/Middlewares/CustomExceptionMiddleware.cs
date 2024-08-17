@@ -30,7 +30,7 @@ namespace MinesweeperAPI.Middlewares
 
                 await context.Response.WriteAsync(JsonConvert.SerializeObject(new
                 {
-                    Error = exception.Message,
+                    error = exception.Message,
                 }));
             }
         }

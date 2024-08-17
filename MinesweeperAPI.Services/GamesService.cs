@@ -65,7 +65,7 @@ namespace MinesweeperAPI.Services
                 FieldText = JsonConvert.SerializeObject(field),
                 CurrentFieldText = JsonConvert.SerializeObject(currentField),
                 ClosedCellsCount = width * height - minesCount,
-                IsStarted = true,
+                IsStarted = false,
                 UpdatedAt = DateTime.UtcNow,
             };
 
@@ -89,16 +89,6 @@ namespace MinesweeperAPI.Services
             int col, 
             CancellationToken cancellationToken)
         {
-            if (row < 2 || row > 30)
-            {
-                throw new BadRequestException("Ряд должен быть не менее 2 и не более 30");
-            }
-
-            if (col < 2 || col > 30)
-            {
-                throw new BadRequestException("Столбец должен быть не менее 2 и не более 30");
-            }
-
             Game? game = await _gamesRepository.GetAsync(gameId, cancellationToken)
                 ?? throw new BadRequestException($"Игра с идентификатором {gameId} не обнаружена");
 
@@ -107,18 +97,32 @@ namespace MinesweeperAPI.Services
                 throw new BadRequestException("Игра уже окончена");
             }
 
+            if (row < 0 || row > game.Height - 1)
+            {
+                throw new BadRequestException($"Ряд должен быть не менее 0 и не более {game.Height - 1}");
+            }
+
+            if (col < 0 || col > game.Width - 1)
+            {
+                throw new BadRequestException($"Столбец должен быть не менее 2 и не более {game.Width - 1}");
+            }
+
             int[][] field = game.Field;
             string[][] currentField = game.CurrentField;
+
+            if (!currentField[row][col].Equals(" "))
+            {
+                throw new BadRequestException($"Данная ячейка уже открыта");
+            }
 
             if (!game.IsStarted)
             {
                 int[][] coords = GetMineCoords(
-                    game.Width * game.Height,
                     game.MinesCount,
                     game.Height,
-                    game.Width * row + col);
-
-                game.IsStarted = true;
+                    game.Width,
+                    row,
+                    col);
 
                 foreach (int[] coord in coords)
                 {
@@ -126,6 +130,7 @@ namespace MinesweeperAPI.Services
                 }
 
                 game.FieldText = JsonConvert.SerializeObject(field);
+                game.IsStarted = true;
             }
 
             if (field[row][col] == -1)
@@ -153,24 +158,23 @@ namespace MinesweeperAPI.Services
             };
         }
 
-        private int[][] GetMineCoords(
-            int max, 
+        private int[][] GetMineCoords( 
             int minesCount, 
             int rowsCount, 
-            int firstStep)
+            int colsCount,
+            int row,
+            int col)
         {
+            int max = rowsCount * colsCount;
+            int firstStep = row * rowsCount + col;
             Random random = new Random();
 
-            int[] positions = Enumerable.Range(0, max)
+            return Enumerable.Range(0, max)
+                .Where(x => !x.Equals(firstStep))
                 .OrderBy(x => random.Next())
                 .Take(minesCount)
-                .OrderBy(x => Math.Abs(x - firstStep))
+                .Select(x => new[] { x / colsCount, x % colsCount }).ToArray()
                 .ToArray();
-
-            positions[0] = firstStep;
-
-            return positions.Select(x => new[] { x / rowsCount, x % rowsCount }).ToArray();
-
         }
 
         private void PutMineOnField(int[][] field, int row, int col)
@@ -189,7 +193,7 @@ namespace MinesweeperAPI.Services
         private void AddCellValue(int[][] field, int row, int col)
         {
             if (row >= 0 && row < field.GetLength(0) &&
-                col >= 0 && col < field.GetLength(1) && field[row][col] != -1)
+                col >= 0 && col < field[0].Length && field[row][col] != -1)
             {
                 field[row][col]++;
             }
@@ -198,7 +202,7 @@ namespace MinesweeperAPI.Services
         private void EndGame(string[][] currentField, int[][] field, bool isLost)
         {
             int rowsCount = field.GetLength(0);
-            int colsCount = field.GetLength(1);
+            int colsCount = field[0].Length;
 
             for (int i = 0; i < rowsCount; i++)
             {
@@ -252,7 +256,7 @@ namespace MinesweeperAPI.Services
             int col)
         {
             if (row >= 0 && row < field.GetLength(0) &&
-               col >= 0 && col < field.GetLength(1) && field[row][col] != -1)
+               col >= 0 && col < field[0].Length && field[row][col] != -1 && currentField[row][col].Equals(" "))
             {
                 OpenCell(
                     game,

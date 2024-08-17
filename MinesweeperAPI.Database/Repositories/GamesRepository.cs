@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MinesweeperAPI.Database.Repositories.Interfaces;
 using MinesweeperAPI.Models.Entities;
+using System.Linq.Expressions;
 
 namespace MinesweeperAPI.Database.Repositories
 {
@@ -23,6 +24,21 @@ namespace MinesweeperAPI.Database.Repositories
             CancellationToken cancellationToken)
         {
             return await _dbContext.Games.FirstOrDefaultAsync(game => game.Id.Equals(gameId));
+        }
+
+        public async Task<IEnumerable<Game>> GetAsync(
+            Expression<Func<Game?, bool>> predicate, 
+            CancellationToken cancellationToken)
+        {
+            return await _dbContext.Games.Where(predicate).ToListAsync(cancellationToken);
+        }
+
+        public async Task RemoveAsync(
+            IEnumerable<Game> games, 
+            CancellationToken cancellationToken)
+        {
+            _dbContext.Games.RemoveRange(games);
+            await _dbContext.SaveChangesAsync(cancellationToken);
         }
     }
 }

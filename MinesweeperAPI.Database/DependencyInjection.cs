@@ -24,6 +24,8 @@ namespace MinesweeperAPI.Database
             services.AddScoped<IGamesRepository, GamesRepository>();
             services.AddScoped<IDatabaseRepository, DatabaseRepository>();
 
+            services.AddHostedService<GamesCleaningService>();
+
             return services;
         }
     }
